@@ -2,19 +2,24 @@ import React from "react";
 import "./StatsPage.css";
 import { getUsers } from "../config/utils";
 import { useState, useEffect } from "react";
+import fireGif from "../Assets/Remove Background.gif";
 
 function StatsPage() {
   const [leaderBoard, setLeaderBoard] = useState([]);
   const [dormStats, setDormStats] = useState({});
   const [stableStats, setStableStats] = useState({});
+  const [numberAlive, setNumberAlive] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
-      const { sortedUsers, stableTags, dormTags } = await getUsers();
+      const { sortedUsers, stableTags, dormTags, numAlive } = await getUsers();
 
       setLeaderBoard(sortedUsers);
       setDormStats(dormTags);
       setStableStats(stableTags);
+      setNumberAlive(numAlive);
+
+      console.log("fetching data");
     }
 
     fetchData();
@@ -24,29 +29,49 @@ function StatsPage() {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
   }
+  const [countdown, setCountdown] = useState("");
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const now = new Date().getTime();
+      const targetDate = new Date("January 30, 2024 15:30:00").getTime();
+      const distance = targetDate - now;
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="StatsPage Page">
+      {/* <img src={fireGif} className="fire"></img> */}
       <div className="columns">
         <div className="column-1">
           <h1>Leaderboard</h1>
           <ul className="leaderboard">
             {leaderBoard.slice(0, 20).map((entry, idx) => {
               return (
-                <li className="leaderboard-person" key={entry.chaser}>
+                <li className="leaderboard-person" key={entry.target}>
                   <div className="place-and-title">
                     <p className="place">{idx + 1}</p>
                     <div className="">
                       <h3
                         style={{
-                          color: entry.alive ? {
-                            blue: "#4e79d1",
-                            green: "#59a14f",
-                            orange: "#e69f00",
-                            pink: "#ff9da7",
-                            purple: "#6e34eb",
-                            red: "#eb3449",
-                          }[entry.stable] : "var(--secondary-color",
+                          color: entry.alive
+                            ? {
+                                blue: "#4e79d1",
+                                green: "#59a14f",
+                                orange: "#e69f00",
+                                pink: "#ff9da7",
+                                purple: "#6e34eb",
+                                red: "#eb3449",
+                              }[entry.stable]
+                            : "var(--secondary-color",
                         }}
                       >
                         {entry.firstName} {entry.lastName}
@@ -58,7 +83,7 @@ function StatsPage() {
                       </p>
                     </div>
                   </div>
-                  <h2 className="num-tags" >{entry.tags}</h2>
+                  <h2 className="num-tags">{entry.tags}</h2>
                 </li>
               );
             })}
@@ -66,6 +91,14 @@ function StatsPage() {
         </div>
 
         <div className="column-2">
+          <h1>Countdown</h1>
+          <div className="timer">
+            <h1 className="countdown">{countdown}</h1>
+            <p className="numAlive">
+              <span className="special-red">{numberAlive} </span>
+            people left
+            </p>
+          </div>
           <div className="row-1">
             <h1>Dorms</h1>
 

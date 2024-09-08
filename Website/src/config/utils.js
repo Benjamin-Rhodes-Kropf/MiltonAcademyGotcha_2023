@@ -105,10 +105,11 @@ export const tagOut = async (email) => {
     const answer = window.confirm("Are you sure you want to tag out?");
 
     if (answer) {
+      await submitLastWords(email, fullName, lastWords);
+
       await setDoc(user.userRef, userData);
       await setDoc(chaser.userRef, chaserData);
 
-      await submitLastWords(email, fullName, lastWords);
       const fullName = userData.firstName + " " + userData.lastName;
 
       alert("You have been tagged out.");
@@ -156,13 +157,19 @@ export const getUsers = async () => {
 
     allUsers = shuffle(allUsers);
 
-    const sortedUsers = allUsers.slice().sort((a, b) => {
-      if (b.tags !== a.tags) {
-        return b.tags - a.tags;
-      } else {
-        return b.alive - a.alive;
-      }
-    });
+    const aliveUsers = allUsers.filter((user) => user.alive);
+    const sortedUsers = aliveUsers
+      .slice()
+      .sort((a, b) => {
+        if (b.tags !== a.tags) {
+          return b.tags - a.tags;
+        } else {
+          return b.alive - a.alive;
+        }
+      })
+      .slice(0, 20);
+
+    
 
     const stableTags = allUsers.reduce((acc, user) => {
       const stable = user.stable;
@@ -178,7 +185,8 @@ export const getUsers = async () => {
     //   return acc;
     // }, {});
 
-    const dormTags = allUsers.reduce((acc, user) => {
+
+    let dormTags = allUsers.reduce((acc, user) => {
       const dorm = user.dorm;
       const tags = user.tags;
       const name = user.firstName + " " + user.lastName;
@@ -192,7 +200,18 @@ export const getUsers = async () => {
       return acc;
     }, {});
 
-    return { allUsers, sortedUsers, stableTags, dormTags };
+    dormTags = Object.entries(dormTags).map(
+      ([dorm, { totalTags, topTagger }]) => ({ dorm, totalTags, topTagger })
+    );
+    dormTags.sort((a, b) => b.totalTags - a.totalTags);
+    dormTags = dormTags.reduce((acc, { dorm, totalTags, topTagger }) => {
+      acc[dorm] = { totalTags, topTagger };
+      return acc;
+    }, {});
+
+    const numAlive = aliveUsers.length;
+
+    return { allUsers, sortedUsers, stableTags, dormTags, numAlive };
   } catch (error) {
     console.log(error);
   }

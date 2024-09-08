@@ -55,7 +55,7 @@
   align-items: center;
   text-align: center;
   color: gold;
-  
+
   border-radius: 10px;
   font-size: 4rem;
 
@@ -88,7 +88,7 @@
 
 .dorm {
   background-color: var(--tertiary-color);
-  padding: 20px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
 }
@@ -111,4 +111,39 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.fire {
+  position: fixed;
+  bottom: -140px;
+  left: -10px;
+  height: 100vh;
+  width: 110vw;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  font-size: 8rem;
+  color: red;
+}
+
+.timer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+}
+
+.numAlive {
+  font-size: 3rem;
+}
+
+.special-red {
+  color: red;
+  font-weight: 700;
 }
